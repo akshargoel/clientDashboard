@@ -1,0 +1,41 @@
+/* AddClientForm.css */
+
+.add-client-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.add-client-form h2 {
+    margin-bottom: 20px;
+}
+
+.add-client-form label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.add-client-form input,
+.add-client-form textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.add-client-form button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.add-client-form button:hover {
+    background-color: #0056b3;
+}
