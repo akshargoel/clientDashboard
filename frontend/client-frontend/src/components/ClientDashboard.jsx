@@ -3,11 +3,14 @@ import axiosInstance from './axiosConfig';
 import AddClientForm from './AddClientForm';
 import "./ClientDashboard.css"
 
-
 function ClientDashboard() {
     const [clients, setClients] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [showAddForm, setShowAddForm] = useState(false);
+    const [selectedClient, setSelectedClient] = useState(null);
+    const [editingClient, setEditingClient] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [modalType, setModalType] = useState(null); // 'view' or 'edit'
 
     useEffect(() => {
         axiosInstance.get('/api/clients')
@@ -23,6 +26,36 @@ function ClientDashboard() {
         axiosInstance.delete(`/api/clients/${id}`)
             .then(() => setClients(clients.filter(client => client.id !== id)))
             .catch(error => console.error('Error deleting client:', error));
+    };
+
+    const handleView = (client) => {
+        setSelectedClient(client);
+        setModalType('view');
+        setShowModal(true);
+    };
+
+    const handleEdit = (client) => {
+        setEditingClient(client);
+        setModalType('edit');
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setSelectedClient(null);
+        setEditingClient(null);
+        setModalType(null);
+    };
+
+    const handleUpdateClient = (updatedClient) => {
+        axiosInstance.put(`/api/clients/${updatedClient.id}`, updatedClient)
+            .then(() => {
+                setClients(clients.map(client =>
+                    client.id === updatedClient.id ? updatedClient : client
+                ));
+                closeModal();
+            })
+            .catch(error => console.error('Error updating client:', error));
     };
 
     const filteredClients = clients.filter(client =>
@@ -76,14 +109,38 @@ function ClientDashboard() {
                             <td>{client.deadline}</td>
                             <td>{client.status}</td>
                             <td>
-                                <button className="btn btn-primary">View</button>
-                                <button className="btn btn-warning">Edit</button>
+                                <button className="btn btn-primary" onClick={() => handleView(client)}>View</button>
+                                <button className="btn btn-warning" onClick={() => handleEdit(client)}>Edit</button>
                                 <button className="btn btn-danger" onClick={() => handleDelete(client.id)}>Delete</button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
+            {showModal && (
+                <div className="modal">
+                    {modalType === 'view' && selectedClient && (
+                        <div className="modal-content">
+                            <h3>Client Details</h3>
+                            <p><strong>ID:</strong> {selectedClient.clientId}</p>
+                            <p><strong>Name:</strong> {selectedClient.clientName}</p>
+                            {/* Display other client details here */}
+                            <button onClick={closeModal}>Close</button>
+                        </div>
+                    )}
+                    {modalType === 'edit' && editingClient && (
+                        <div className="modal-content">
+                            <h3>Edit Client</h3>
+                            <AddClientForm
+                                client={editingClient}
+                                onAddClient={handleUpdateClient}
+                            />
+                            <button onClick={closeModal}>Close</button>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
